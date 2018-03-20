@@ -1,7 +1,10 @@
 package com.jwt.service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.SimpleFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,12 +31,16 @@ public class TasksService {
 	@Autowired	
 	EmailUtil emailUtil;
 
-	public Tasks save(Tasks user) {
-		return tasksRepository.saveAndFlush(user);
+	public Tasks save(Tasks task) {
+		return tasksRepository.saveAndFlush(task);
 	}
 
 	public Tasks update(Tasks task) {
-		task = tasksRepository.save(task);
+		Tasks dbTask = find(task.getId());
+		//if status is already completed - we should not edit the task 
+		if(Constants.STATUS_COMPLETED.equals(dbTask.getStatus().getStatusCode()))
+			return null;
+
 		StatusMaster statusMaster = statusMasterService.findById(task.getStatus().getId());
 		if(Constants.STATUS_COMPLETED.equals(statusMaster.getStatusCode())){
 			emailUtil.sendSimpleMessage(Constants.EMAIL_TO, Constants.EMAIL_SUBJECT, Constants.EMAIL_TEXT);
@@ -52,8 +59,11 @@ public class TasksService {
 		}
 	} 
 
-	public List<Tasks> findAll() {
-		return tasksRepository.findAll();
+	public List<Tasks> findAll(Boolean currentDate) {
+		if(currentDate)
+			return tasksRepository.findByDate(new SimpleDateFormat(Constants.COMMON_DATE_FORMAT).format(new Date()));
+		else	
+			return tasksRepository.findAll();
 	}
 	
 }

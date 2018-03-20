@@ -25,6 +25,10 @@ public class UserService {
 		return userRepository.save(user);
 	}
 
+	public User find(String userName) {
+		return userRepository.findByUsername(userName);
+	}
+
 	public User find(Long id) {
 		return userRepository.findOne(id);
 	}

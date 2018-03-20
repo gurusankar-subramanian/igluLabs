@@ -66,6 +66,9 @@ public class Tasks {
 			return "";
 	}
 
+	public Timestamp getStartDateTimestamp() {
+			return startDate;
+	}
 	public void setStartDate(Timestamp startDate) {
 		this.startDate = startDate;
 	}
@@ -77,6 +80,9 @@ public class Tasks {
 			return "";
 	}
 
+	public Timestamp getEndDateTimestamp() {
+			return endDate;
+	}
 	public void setEndDate(Timestamp endDate) {
 		this.endDate = endDate;
 	}

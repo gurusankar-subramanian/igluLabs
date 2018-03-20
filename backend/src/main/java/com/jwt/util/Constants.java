@@ -20,4 +20,8 @@ public class Constants {
 	public static final String EMAIL_SUBJECT = "Task Completed";
 	
 	public static final String EMAIL_TEXT = "Task is moved to Completed Status";
+	
+	public static final String COMMON_DATE_FORMAT = "dd-MM-yyyy";
+	
+	
 }

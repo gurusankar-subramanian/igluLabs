@@ -16,12 +16,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jwt.domain.StatusMaster;
 import com.jwt.domain.Tasks;
 import com.jwt.service.StatusMasterService;
 import com.jwt.service.TasksService;
+import com.jwt.util.CommonUtil;
 import com.jwt.util.Constants;
 
 
@@ -44,12 +47,22 @@ public class TasksController {
 	@Autowired
 	private StatusMasterService statusMasterService;
 
+	@Autowired
+	private CommonUtil commonUtil;
+	
+
 	@SuppressWarnings("unchecked")
 	@PostMapping(value = "/")
 	public ResponseEntity<?> creatTask(@RequestBody Tasks task) {
-		StatusMaster status = statusMasterService.findByStatusCode(Constants.STATUS_NEW);
-		task.setStatus(status);
-		return new ResponseEntity<Tasks>(tasksService.save(task), HttpStatus.CREATED);
+		Boolean startAndEndDateTimeResult = commonUtil.validateStartAndEndDateTime(task);
+		Boolean dateResult = commonUtil.validateDate(task);
+		
+		if(startAndEndDateTimeResult  && dateResult){
+			StatusMaster status = statusMasterService.findByStatusCode(Constants.STATUS_NEW);
+			task.setStatus(status);
+			return new ResponseEntity<Tasks>(tasksService.save(task), HttpStatus.CREATED);
+		}
+		return new ResponseEntity<Tasks>(task, HttpStatus.BAD_REQUEST);
 	}
 
 	@GetMapping("/{id}")
@@ -65,9 +78,18 @@ public class TasksController {
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<?> updateTask(@PathVariable("id") Long id, @RequestBody Tasks task) {
 		if(id != task.getId()){
-			return new ResponseEntity<Tasks>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>("PathVariable and ID in task Object is not same ",HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<Tasks>(tasksService.update(task), HttpStatus.OK);
+		Boolean startAndEndDateTimeResult = commonUtil.validateStartAndEndDateTime(task);
+		Boolean dateResult = commonUtil.validateDate(task);
+		if(startAndEndDateTimeResult  && dateResult){
+			task = tasksService.update(task);
+			if(!Objects.isNull(task))
+				return new ResponseEntity<Tasks>(task, HttpStatus.OK);
+			else
+				return new ResponseEntity<>("Status is Completed - Cannot edit Task ", HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -79,8 +101,8 @@ public class TasksController {
 	
 
 	@GetMapping("/all")
-	public ResponseEntity<?> findAll() {
-		List<Tasks> tasks = tasksService.findAll();
+	public ResponseEntity<?> findAll(@RequestParam Boolean currentDate) {
+		List<Tasks> tasks = tasksService.findAll(currentDate);
 		if(tasks != null)
 			return new ResponseEntity<List<Tasks>>(tasks, HttpStatus.OK);
 		else
