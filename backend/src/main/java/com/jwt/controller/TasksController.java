@@ -36,7 +36,7 @@ import com.jwt.util.Constants;
 
 @RestController
 @RequestMapping("tasks")
-@PreAuthorize("hasAuthority('"+Constants.ADMIN_USER+"') or hasAuthority('"+Constants.STANDARD_USER+"')")
+//@PreAuthorize("hasAuthority('"+Constants.ADMIN_USER+"') or hasAuthority('"+Constants.STANDARD_USER+"')")
 public class TasksController {
 
 	public static final Logger logger = LoggerFactory.getLogger(TasksController.class);
