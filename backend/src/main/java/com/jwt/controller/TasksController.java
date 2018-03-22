@@ -101,7 +101,7 @@ public class TasksController {
 	
 
 	@GetMapping("/all")
-	public ResponseEntity<?> findAll(@RequestParam Boolean currentDate) {
+	public ResponseEntity<?> findAll(@RequestParam(value="currentDate", required=false, defaultValue="false") Boolean currentDate) {
 		List<Tasks> tasks = tasksService.findAll(currentDate);
 		if(tasks != null)
 			return new ResponseEntity<List<Tasks>>(tasks, HttpStatus.OK);
